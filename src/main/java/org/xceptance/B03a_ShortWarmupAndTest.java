@@ -31,7 +31,7 @@ import com.xceptance.common.util.SimpleArrayList;
 @Warmup(iterations = 3, time = 2, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 8, time = 2, timeUnit = TimeUnit.SECONDS)
 @Fork(1)
-public class B03a_SortWarmupAndTest
+public class B03a_ShortWarmupAndTest
 {
     XltCharBuffer src;
     SimpleArrayList<XltCharBuffer> result;
