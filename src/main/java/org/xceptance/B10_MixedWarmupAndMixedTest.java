@@ -30,15 +30,15 @@ import com.xceptance.misc.FastRandom;
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 @Warmup(iterations = 3, time = 2, timeUnit = TimeUnit.SECONDS)
-@Measurement(iterations = 8, time = 2, timeUnit = TimeUnit.SECONDS)
+@Measurement(iterations = 10, time = 2, timeUnit = TimeUnit.SECONDS)
 @Fork(1)
-public class B08_MixedWarmupAndMixedTest
+public class B10_MixedWarmupAndMixedTest
 {
     int iterationCount = 0;
 
     XltCharBuffer[] data;
     SimpleArrayList<XltCharBuffer> result;
-    static FastRandom r = new FastRandom(345111L);
+    static FastRandom r = new FastRandom();
 
     XltCharBuffer[] DATA =
                 {
