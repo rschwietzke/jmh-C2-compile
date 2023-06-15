@@ -34,7 +34,7 @@ THE POSSIBILITY OF SUCH DAMAGE.
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.xceptance</groupId>
-    <artifactId>jmh-JDK11-tokenizer-challenge</artifactId>
+    <artifactId>jmh-C2-compile-issue</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
 
@@ -67,12 +67,12 @@ THE POSSIBILITY OF SUCH DAMAGE.
         <!--
             JMH version to use with this project.
           -->
-        <jmh.version>1.23</jmh.version>
+        <jmh.version>1.36</jmh.version>
 
         <!--
             Java source/target to use for compilation.
           -->
-        <javac.target>1.8</javac.target>
+        <javac.target>17</javac.target>
 
         <!--
             Name of the benchmark Uber-JAR to generate.
