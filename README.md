@@ -2,72 +2,164 @@
 
 ## The Problem
 
+We updated our load test software and especially worked on the runtime of the report generator. While testing it before release, we noticed very unstable runtimes. A fixed data set sees runtimes between 5 to 14 min. The 5 min runtime is the expected one, while higher runtimes only occur occasionally. These range from 6 to 14 min in about 10 to 15% of the cases.
+
+The report generator is multi-threaded and reads about 7 GB of compressed CSV data (56 GB uncompressed). This is a total of 722,176,188 lines. Because of the multi-threaded model, the order of things is always a slightly different when processing the data.
+
+## First Diagnostics
+
+### Async Profiler
+
+When we caught a process in the act of being slow, we connected Async Profiler and got some traces. These are 60 sec captures and they show clearly a shift towards the CSV parser.
+
+*Good*
+
+```
+         ns  percent  samples  top
+  ----------  -------  -------  ---
+ 45612243950    9.55%     4559  com.xceptance.common.util.CsvUtilsDecode.parse
+ 31634884015    6.62%     3162  itable stub
+ 25989872875    5.44%     2589  /usr/lib/x86_64-linux-gnu/libz.so.1.2.11
+ 23561485986    4.93%     2355  java.util.regex.Pattern$Slice.match
+ 21140760305    4.42%     2113  vtable stub
+ 20569614899    4.30%     2056  java.util.regex.Pattern$BmpCharProperty.match
+ 19321839309    4.04%     1931  jdk.internal.util.ArraysSupport.mismatch
+ 18011700149    3.77%     1800  com.xceptance.xlt.api.util.XltCharBuffer.hashCode
+```
+
+*Bad*
+
+```
+       ns  percent  samples  top
+  ----------  -------  -------  ---
+384925806756   79.68%    38490  com.xceptance.common.util.CsvUtilsDecode.parse
+  5582345351    1.16%      558  com.xceptance.xlt.api.util.XltCharBuffer.hashCode
+  5393452865    1.12%      537  /usr/lib/x86_64-linux-gnu/libz.so.1.2.11
+  5132247709    1.06%      513  itable stub
+  4932415970    1.02%      493  java.util.regex.Pattern$Slice.match
+  4400943650    0.91%      440  com.xceptance.xlt.api.util.XltCharBuffer.viewFromTo
+  4381854811    0.91%      438  java.util.regex.Pattern$BmpCharProperty.match
+  3881428022    0.80%      388  vtable stub
+```
+
+### PrintCompilation
+
+Because it seems that the compiled code differs occasionally, we look at the compilation for that very method. This screenshot shows four different captures (displayed using JITWatch).
+
+![JITWatch compile stages](/assets/jitwatch-compile.png)
+
 ## Theory
 
 ## Summary
 
+Running this with GraalVM 22.3-19 produces even worse data. The runtime difference is huge now. We talk about 2600 ns/op now instead of 1000 ns/op for OpenJDK 17. JDK 21 EA 25 is also worse with 1950 ns/ops.
+
+## Data
+
+For this test, we use three lines of CSV data. The long versions are displayed in a shorted version here, to highlight the difference. You find the long version in the source code.
+
+* SHORT: `T,TFlashCheckout,1666958662310,17729,false,,,,`
+* LONG Unquoted: `R,CandleDaySalesPage.2,1666954266805,95,false,1349,429,200,https://<huge url here>,image/gif,0,0,95,0,95,95,,GET,,,0,,`
+* LONG Quoted: `R,CandleDaySalesPage.2,1666954266805,95,false,1349,429,200,"https://<huge url here>",image/gif,0,0,95,0,95,95,,GET,,,0,,`
+
+As you can see, the long version only differs in one spot - additional quotes around the URL, because it might contains commas. The parsing will change here and inline remove the quotes while parsing the data. The entire parsing is optimized towards low or no allocation, because we have to parse millions of these lines. This is also the reason while we are not running `String` parsing here, but access a custom char array which later returns views on that backing array instead of providing copies.
+
 ## Measurements and Results
+
+All measurements have been taken on a Google Cloud c2-standard-8 instance. Similar data has been seen on a Lenovo T14s AMD.
 
 ### Short - 03a
 
+This is the runtime of a short
+
 ```
+# JMH version: 1.36
+# VM version: JDK 17.0.7, OpenJDK 64-Bit Server VM, 17.0.7+7
+# VM invoker: /home/r_schwietzke/.sdkman/candidates/java/17.0.7-tem/bin/java
+# VM options: -Xms2g -Xmx2g -XX:+UseSerialGC -XX:+AlwaysPreTouch -XX:+UseSerialGC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 2 s each
+# Measurement: 8 iterations, 2 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
 # Benchmark: org.xceptance.B03a_ShortWarmupAndTest.parse
 
 # Run progress: 0.00% complete, ETA 00:00:22
 # Fork: 1 of 1
-# Warmup Iteration   1: 72.308 ns/op
-# Warmup Iteration   2: 71.459 ns/op
-# Warmup Iteration   3: 70.666 ns/op
-Iteration   1: 70.674 ns/op
-Iteration   2: 70.716 ns/op
-Iteration   3: 70.692 ns/op
-Iteration   4: 70.748 ns/op
-Iteration   5: 70.735 ns/op
-Iteration   6: 70.626 ns/op
-Iteration   7: 70.622 ns/op
-Iteration   8: 70.682 ns/op
+# Warmup Iteration   1: 72.160 ns/op
+# Warmup Iteration   2: 73.073 ns/op
+# Warmup Iteration   3: 70.650 ns/op
+Iteration   1: 70.518 ns/op
+Iteration   2: 70.545 ns/op
+Iteration   3: 70.526 ns/op
+Iteration   4: 70.582 ns/op
+Iteration   5: 70.555 ns/op
+Iteration   6: 70.566 ns/op
+Iteration   7: 70.534 ns/op
+Iteration   8: 70.496 ns/op
 ```
 
 ### Unquoted - 03b
 ```
+# JMH version: 1.36
+# VM version: JDK 17.0.7, OpenJDK 64-Bit Server VM, 17.0.7+7
+# VM invoker: /home/r_schwietzke/.sdkman/candidates/java/17.0.7-tem/bin/java
+# VM options: -Xms2g -Xmx2g -XX:+UseSerialGC -XX:+AlwaysPreTouch -XX:+UseSerialGC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 2 s each
+# Measurement: 8 iterations, 2 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
 # Benchmark: org.xceptance.B03b_UnquotedWarmupAndTest.parse
 
 # Run progress: 0.00% complete, ETA 00:00:22
 # Fork: 1 of 1
-# Warmup Iteration   1: 437.093 ns/op
-# Warmup Iteration   2: 451.833 ns/op
-# Warmup Iteration   3: 448.237 ns/op
-Iteration   1: 445.821 ns/op
-Iteration   2: 445.459 ns/op
-Iteration   3: 445.740 ns/op
-Iteration   4: 445.826 ns/op
-Iteration   5: 445.890 ns/op
-Iteration   6: 445.433 ns/op
-Iteration   7: 445.820 ns/op
-Iteration   8: 446.090 ns/op
+# Warmup Iteration   1: 437.233 ns/op
+# Warmup Iteration   2: 453.090 ns/op
+# Warmup Iteration   3: 447.492 ns/op
+Iteration   1: 445.609 ns/op
+Iteration   2: 446.047 ns/op
+Iteration   3: 446.409 ns/op
+Iteration   4: 448.784 ns/op
+Iteration   5: 446.039 ns/op
+Iteration   6: 445.666 ns/op
+Iteration   7: 446.513 ns/op
+Iteration   8: 446.051 ns/op
 ```
 
 ### Quoted - 03c
 ```
+# JMH version: 1.36
+# VM version: JDK 17.0.7, OpenJDK 64-Bit Server VM, 17.0.7+7
+# VM invoker: /home/r_schwietzke/.sdkman/candidates/java/17.0.7-tem/bin/java
+# VM options: -Xms2g -Xmx2g -XX:+UseSerialGC -XX:+AlwaysPreTouch -XX:+UseSerialGC
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 3 iterations, 2 s each
+# Measurement: 8 iterations, 2 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
 # Benchmark: org.xceptance.B03c_QuotedWarmupAndTest.parse
 
 # Run progress: 0.00% complete, ETA 00:00:22
 # Fork: 1 of 1
-# Warmup Iteration   1: 624.110 ns/op
-# Warmup Iteration   2: 715.606 ns/op
-# Warmup Iteration   3: 708.387 ns/op
-Iteration   1: 709.841 ns/op
-Iteration   2: 707.189 ns/op
-Iteration   3: 705.774 ns/op
-Iteration   4: 705.159 ns/op
-Iteration   5: 706.001 ns/op
-Iteration   6: 705.795 ns/op
-Iteration   7: 705.947 ns/op
-Iteration   8: 705.302 ns/op
+# Warmup Iteration   1: 679.505 ns/op
+# Warmup Iteration   2: 720.437 ns/op
+# Warmup Iteration   3: 709.460 ns/op
+Iteration   1: 709.459 ns/op
+Iteration   2: 708.525 ns/op
+Iteration   3: 709.155 ns/op
+Iteration   4: 708.071 ns/op
+Iteration   5: 706.513 ns/op
+Iteration   6: 706.533 ns/op
+Iteration   7: 707.932 ns/op
+Iteration   8: 706.479 ns/op
 ```
 
 ### Train Unquoted, Run Quoted - 05c
-We would expect about 700 to 710 ns/op based on our single data benchmark from before. We got 685 ns/op, basically slightly better than the standalone run. When checking all 15 forks of the test, we get about 675 ns/op as best case, and 700 ns/op as worst-case.
+We would expect about 700 to 710 ns/op based on our single data benchmark from before. We got 685 ns/op, basically slightly better than the standalone run. When checking all 15 forks of the test, we get about 675 ns/op best case, and 700 ns/op as worst-case.
 
 ```
 # Benchmark: org.xceptance.B05c_UnquotedWarmupAndQuotedTest.parse
