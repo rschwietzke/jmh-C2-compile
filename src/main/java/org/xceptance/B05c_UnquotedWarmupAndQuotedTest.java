@@ -31,7 +31,7 @@ import com.xceptance.common.util.SimpleArrayList;
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 @Warmup(iterations = 3, time = 2, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 2, timeUnit = TimeUnit.SECONDS)
-@Fork(15)
+@Fork(1)
 public class B05c_UnquotedWarmupAndQuotedTest
 {
     int iterationCount;

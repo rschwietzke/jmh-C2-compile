@@ -31,8 +31,10 @@ import com.xceptance.common.util.SimpleArrayList;
 @Warmup(iterations = 3, time = 2, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 2, timeUnit = TimeUnit.SECONDS)
 @Fork(1)
-public class B03a_ShortWarmupAndTest
+public class B05d_UnquotedWarmupAndShort
 {
+    int iterationCount;
+
     XltCharBuffer src;
     SimpleArrayList<XltCharBuffer> result;
 
@@ -43,8 +45,18 @@ public class B03a_ShortWarmupAndTest
     @Setup(Level.Iteration)
     public void setup(BenchmarkParams params) throws InterruptedException
     {
+        iterationCount++;
+
         result = new SimpleArrayList<>(10);
-        src = XltCharBuffer.valueOf(SHORT);
+
+        if (iterationCount <= params.getWarmup().getCount())
+        {
+            src = XltCharBuffer.valueOf(LONG);
+        }
+        else
+        {
+            src = XltCharBuffer.valueOf(SHORT);
+        }
     }
 
     @Benchmark

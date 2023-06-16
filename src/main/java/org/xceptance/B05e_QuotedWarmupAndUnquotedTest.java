@@ -30,8 +30,8 @@ import com.xceptance.common.util.SimpleArrayList;
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 @Warmup(iterations = 3, time = 2, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 2, timeUnit = TimeUnit.SECONDS)
-@Fork(15)
-public class B06b_QuotedWarmupAndUnquotedTest
+@Fork(1)
+public class B05e_QuotedWarmupAndUnquotedTest
 {
     int iterationCount = 0;
 
