@@ -1,5 +1,4 @@
 # Hotspot Compile Issue for While-Loops
-![FyWyf3JWIAAH0iq](https://github.com/rschwietzke/jmh-C2-compile/assets/1793856/6a9452e5-ee54-4155-b03f-d9ab80ddc4dc)
 
 ## The Problem
 
