@@ -31,9 +31,9 @@ import com.xceptance.common.util.SimpleArrayList;
 @Warmup(iterations = 3, time = 2, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 2, timeUnit = TimeUnit.SECONDS)
 @Fork(1)
-public class B05e_QuotedWarmupAndUnquotedTest
+public class B05d_UnquotedWarmupAndShortTest
 {
-    int iterationCount = 0;
+    int iterationCount;
 
     XltCharBuffer src;
     SimpleArrayList<XltCharBuffer> result;
@@ -51,11 +51,11 @@ public class B05e_QuotedWarmupAndUnquotedTest
 
         if (iterationCount <= params.getWarmup().getCount())
         {
-            src = XltCharBuffer.valueOf(LONGQUOTED);
+            src = XltCharBuffer.valueOf(LONG);
         }
         else
         {
-            src = XltCharBuffer.valueOf(LONG);
+            src = XltCharBuffer.valueOf(SHORT);
         }
     }
 

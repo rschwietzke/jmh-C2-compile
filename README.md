@@ -6,6 +6,22 @@ We updated our load test software and especially worked on the runtime of the re
 
 The report generator is multi-threaded and reads about 7 GB of compressed CSV data (56 GB uncompressed). This is a total of 722,176,188 lines. Because of the multi-threaded model, the order of things is always a slightly different when processing the data.
 
+*Disclaimer*: I am not an JDK/JVM/JIT expert. Everything you will find below is based on knowledge shared by others or gained by experimenting around.
+
+## Summary
+
+Because you might just say TL;DR now, here is a quick summary of all the data and experiments below.
+
+When we show our Java code certain data first, it will compile machine code that contains still a lot of uncommon trap markers which seem to change the runtime behavior (observation, not a conclusion). When showing different data to the compiler later, it sticks to its opinion and the runtime suffers by a magnitude of 2 to 5. If we reverse the data that is shown, the runtime behavior improve dramatically and even the data that was presented first before (which lead to that horrible code), is running fine.
+
+This table summarizes the runtimes when training (warmup) and executing (measurement) of our examples (see below). We have short CSV lines, long lines (unquoted) and long lines with a section being quoted (quoted).
+
+*OpenJDK 17.0.7-tem*
+
+
+
+Running this with GraalVM 22.3-19 produces even worse runtimes. We talk about 2600 ns/op now instead of 1000 ns/op for OpenJDK 17. JDK 21 EA 25 is also worse with 1950 ns/ops. No idea why, especially because the JIT of Graal is totally different but of course might follow the same basic ideas.
+
 ## First Diagnostics
 
 ### Async Profiler
@@ -48,11 +64,26 @@ Because it seems that the compiled code differs occasionally, we look at the com
 
 ![JITWatch compile stages](/assets/jitwatch-compile.png)
 
+There seem to be a pattern releated to the slowness, the C2 OSR compiler compiled it last.
+
+Because of that, we checked the resulting compiled code closer using what JITWatch tells us.
+
+![JITWatch Triview](/assets/jitwatch-triview.png)
+
+When inspecting it closer, JITWatch already marks an area in read and tells us that this code owns four additional uncommon traps while the good version does not have these.
+
+![Added Traps](/assets/additional-traps.png)
+
 ## Theory
 
-## Summary
+Based on the observation, profiling, and knowing the data that goes into the parser, we came up with the following theory:
 
-Running this with GraalVM 22.3-19 produces even worse data. The runtime difference is huge now. We talk about 2600 ns/op now instead of 1000 ns/op for OpenJDK 17. JDK 21 EA 25 is also worse with 1950 ns/ops.
+> When the parser code sees a certain CSV line length or CSV data content early, it will come up with a compile result that is, bluntly spoken, horrible. The compiler will also not reconsider its decision later, hence the program stays extremely slow forever. Due to the multi-threading of the CSV processing, the order of CSV lines is not deterministic. Because this problem only occurs in 10 to 15% of the case, the data causing it must be "rare" too.
+
+Let's find some possible simple test cases that exactly exhibits the behavior we see under load. This might allow us to better understand the problem and possible submit it as a defect or publish it as a learning experience.
+
+We will take the extreme case of our data and
+
 
 ## Data
 
@@ -223,4 +254,3 @@ Iteration   6: 569.357 ns/op
 Iteration   7: 569.318 ns/op
 Iteration   8: 569.239 ns/op
 ```
-
