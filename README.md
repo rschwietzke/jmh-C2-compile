@@ -16,11 +16,11 @@ When we show our Java code certain data first, it will compile machine code that
 
 This table summarizes the runtimes when training (warmup) and executing (measurement) of our examples (see below). We have short CSV lines, long lines (unquoted) and long lines with a section being quoted (quoted).
 
-*OpenJDK 17.0.7-tem*
+![Measurement Data](/assets/data.png)
 
+Columns are formed by the warm-up data, the later measurement data (run) is in the rows. The green numbers are the expectation (we used the same data for warming and measurement). The read numbers are the unexpected outliers.
 
-
-Running this with GraalVM 22.3-19 produces even worse runtimes. We talk about 2600 ns/op now instead of 1000 ns/op for OpenJDK 17. JDK 21 EA 25 is also worse with 1950 ns/ops. No idea why, especially because the JIT of Graal is totally different but of course might follow the same basic ideas.
+Running this with GraalVM 22.3-19 produces even worse runtimes. We talk about 2600 ns/op now instead of 1000 ns/op for OpenJDK 17. No idea why, especially because the JIT of Graal is totally different but of course might follow the same basic ideas.
 
 ## First Diagnostics
 
@@ -60,17 +60,17 @@ When we caught a process in the act of being slow, we connected Async Profiler a
 
 ### PrintCompilation
 
-Because it seems that the compiled code differs occasionally, we look at the compilation for that very method. This screenshot shows four different captures (displayed using JITWatch).
+Because it seems that the compiled code differs occasionally, we looked at the compilation for that very method. This screenshot shows four different captures (displayed using JITWatch).
 
 ![JITWatch compile stages](/assets/jitwatch-compile.png)
 
-There seem to be a pattern releated to the slowness, the C2 OSR compiler compiled it last.
+There seem to be a pattern related to the slowness, the C2 OSR compiler compiled it last. In all other cases, the performance was good. It is also clearly visible, that the outcome of the compile runs in regards to size, even when seeing the code results, is different. Therefore the data presented heavily drive the decisions made by the JIT.
 
-Because of that, we checked the resulting compiled code closer using what JITWatch tells us.
+Because of that, we inspected the resulting compiled code closer using what JITWatch tells us.
 
 ![JITWatch Triview](/assets/jitwatch-triview.png)
 
-When inspecting it closer, JITWatch already marks an area in read and tells us that this code owns four additional uncommon traps while the good version does not have these.
+JITWatch marks an area in red and tells us that this code owns four additional uncommon traps while the good code version does not have any of these.
 
 ![Added Traps](/assets/additional-traps.png)
 
