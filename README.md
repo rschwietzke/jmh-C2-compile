@@ -112,6 +112,6 @@ We compiled additional test cases to vary data a little more.
 * B08 - Train with single line data, measure with all line types
 * B10 - Train with all, measure with all
 
-![Measurement Data](/assets/measurement-data.png)
+![Measurement Data](/assets/measurement-mixed.png)
 
 The differences are not as big as with the single runs, but that is also related to the averaging effect of the data lines. Training with small and quoted leads to a larger runtimes difference when runnig just against the long data, but for mixed execution and mixed training, no differences are visible.
