@@ -115,3 +115,19 @@ We compiled additional test cases to vary data a little more.
 ![Measurement Data](/assets/measurement-mixed.png)
 
 The differences are not as big as with the single runs, but that is also related to the averaging effect of the data lines. Training with small and quoted leads to a larger runtimes difference when runnig just against the long data, but for mixed execution and mixed training, no differences are visible.
+
+## Feedback
+This section discusses feedback I got on social media and via email.
+
+### -XX:-TieredCompilation
+
+Disabling tiered compilation does not have any effect.
+
+![Measurement Data](/assets/measurement-without-tiered-compilation.png)
+
+### -XX:TieredStopAtLevel=X
+
+For completeness, we added measurements for each compiler level. Level 3 produces the interesing values, because a lot of profiling code is still part of the code. When we train with quoted, we get runtimes different from the others due to the different set of profiling instructions. It already shows the tendency to be slower as we see finally with level 4. This is an observation, not a conclusion.
+
+![Measurement Data](/assets/measurement-compilerlevels.png)
+
