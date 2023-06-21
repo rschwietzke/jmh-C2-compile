@@ -17,6 +17,8 @@ package com.xceptance.common.util;
 
 import java.text.ParseException;
 
+import org.apache.commons.math3.util.Pair;
+
 import com.xceptance.common.lang.XltCharBuffer;
 
 /**
@@ -30,7 +32,7 @@ import com.xceptance.common.lang.XltCharBuffer;
  * 
  * @since 7.0.0
  */
-public final class CsvUtilsDecodeV2 
+public final class CsvUtilsDecodeV2
 {
     /**
      * Character constant representing a comma.
@@ -45,7 +47,7 @@ public final class CsvUtilsDecodeV2
     /**
      * Default constructor. Declared private to prevent external instantiation.
      */
-    private CsvUtilsDecodeV2() 
+    private CsvUtilsDecodeV2()
     {
     }
 
@@ -57,7 +59,7 @@ public final class CsvUtilsDecodeV2
      *          the CSV-encoded data record
      * @return the plain fields
      */
-    public static SimpleArrayList<XltCharBuffer> parse(final String s) 
+    public static SimpleArrayList<XltCharBuffer> parse(final String s)
     {
         return parse(new SimpleArrayList<>(32), XltCharBuffer.valueOf(s), COMMA);
     }
@@ -66,6 +68,7 @@ public final class CsvUtilsDecodeV2
     private static final int COLLECT = 0;
     private static final int COLLECT_QUOTED = 1;
     private static final int WRITE = 2;
+    private static final int EMPTY_QUOTED = 3;
 
     /**
      * Encodes the given fields to a CSV-encoded data record using the given field
@@ -78,8 +81,7 @@ public final class CsvUtilsDecodeV2
      * @return the CSV-encoded data record
      * @throws ParseException
      */
-    public static SimpleArrayList<XltCharBuffer> parse(final SimpleArrayList<XltCharBuffer> result,
-            final XltCharBuffer src, final char fieldSeparator) 
+    public static SimpleArrayList<XltCharBuffer> parse(final SimpleArrayList<XltCharBuffer> result, final XltCharBuffer src, final char fieldSeparator)
     {
         int pos = 0;
         int to = pos;
@@ -87,17 +89,24 @@ public final class CsvUtilsDecodeV2
 
         while (pos < src.length())
         {
-            switch (getState(pos, src)) 
+            switch (getState(pos, src, fieldSeparator))
             {
                 case COLLECT:
-                    to = stateCollect(pos, src);
+                    to = stateCollect(pos, src, fieldSeparator);
                     pos = to;
                     break;
 
                 case COLLECT_QUOTED:
-                    to = stateCollectQuoted(pos, src);
-                    from++;
+                    Pair<Integer, Integer> toOffset = stateCollectQuoted(pos, src);
+                    to = toOffset.getKey();
+                    from += toOffset.getValue() + 1;
                     pos = to + 1;
+                    break;
+
+                case EMPTY_QUOTED:
+                    from += 2;
+                    to = from;
+                    pos = from;
                     break;
 
                 case WRITE:
@@ -112,32 +121,33 @@ public final class CsvUtilsDecodeV2
             }
         }
 
-        result.add(src.viewFromTo(from, pos));
+        result.add(src.viewFromTo(from, to));
 
         return result;
     }
 
-    private static int getState(final int pos, final XltCharBuffer src) 
+    private static int getState(final int pos, final XltCharBuffer src, final char fieldSeparator)
     {
-        if (src.charAt(pos) == '"') 
+        if (src.charAt(pos) == QUOTE_CHAR && src.peakAhead(pos + 1) == QUOTE_CHAR && src.length() == 2)
+        {
+            return EMPTY_QUOTED;
+        } else if (src.charAt(pos) == QUOTE_CHAR)
         {
             return COLLECT_QUOTED;
-        } 
-        else if (src.charAt(pos) == ',') 
+        } else if (src.charAt(pos) == fieldSeparator)
         {
             return WRITE;
-        } 
-        else 
+        } else
         {
             return COLLECT;
         }
     }
 
-    private static int stateCollect(int pos, final XltCharBuffer src) 
+    private static int stateCollect(int pos, final XltCharBuffer src, final char fieldSeparator)
     {
-        while (pos < src.length()) 
+        while (pos < src.length())
         {
-            if (src.charAt(pos) == ',' || src.charAt(pos) == '"') 
+            if (src.charAt(pos) == fieldSeparator || src.charAt(pos) == QUOTE_CHAR)
             {
                 return pos;
             }
@@ -147,19 +157,51 @@ public final class CsvUtilsDecodeV2
         return pos;
     }
 
-    private static int stateCollectQuoted(int pos, final XltCharBuffer src) 
+    private static Pair<Integer, Integer> stateCollectQuoted(int pos, final XltCharBuffer src)
     {
         pos++;
 
-        while (pos < src.length()) 
+        final int from = pos;
+        int offset = 0;
+
+        while (pos < src.length())
         {
-            if (src.charAt(pos) == '"') 
+            if (src.charAt(pos) == QUOTE_CHAR && src.peakAhead(pos + 1) == QUOTE_CHAR)
             {
-                return pos;
+                pos++;
+                shiftRight(src, from, pos);
+                offset++;
+            } else if (src.charAt(pos) == QUOTE_CHAR)
+            {
+                return new Pair<>(pos, offset);
             }
             pos++;
         }
 
-        return pos;
+        return new Pair<>(pos, offset);
+    }
+
+    /**
+     * Shifts a slice of the buffer one position to the right.
+     * All characters in the slice are shift to the right and so
+     * the first character will be duplicated and the last character
+     * will be discarded.
+     *
+     * @param from the left boundary of the slice
+     * @param to   the right boundary of the slice
+     * @return this instance so shift can be chained
+     */
+    private static XltCharBuffer shiftRight(final XltCharBuffer src, final int from, final int to)
+    {
+        int pos = to;
+
+        while (from < pos)
+        {
+            char c = src.charAt(pos - 1);
+            src.put(pos, c);
+            pos--;
+        }
+
+        return src;
     }
 }
