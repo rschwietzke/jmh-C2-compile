@@ -92,7 +92,7 @@ For this test, we use three lines of CSV data. The long versions are displayed i
 
 As you can see, the long version only differs in one spot - additional quotes around the URL, because it might contains commas. The parsing will change here and inline remove the quotes while parsing the data. The entire parsing is optimized towards low or no allocation, because we have to parse millions of these lines. This is also the reason while we are not running `String` parsing here, but access a custom char array which later returns views on that backing array instead of providing copies.
 
-This quoted version is very rare, because commans in urls are not often used.
+This quoted version is very rare, because commas in urls are not often used.
 
 ## Test Case
 Our test case utilizes JMH and uses a trick to be able to use different data during warm-up. There might be another way of doing it, but I could not find an JMH-API exposes the state of the test.
