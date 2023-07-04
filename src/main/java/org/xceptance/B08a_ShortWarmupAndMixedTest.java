@@ -17,6 +17,7 @@ import org.openjdk.jmh.infra.BenchmarkParams;
 
 import com.xceptance.common.lang.XltCharBuffer;
 import com.xceptance.common.util.CsvUtilsDecode;
+import com.xceptance.common.util.CsvUtilsDecodeV2;
 import com.xceptance.common.util.SimpleArrayList;
 import com.xceptance.misc.FastRandom;
 
@@ -77,6 +78,15 @@ public class B08a_ShortWarmupAndMixedTest
     {
         result.clear();
         var x = CsvUtilsDecode.parse(result, data[r.nextInt(data.length)], ',');
+
+        return x;
+    }
+
+    @Benchmark
+    public SimpleArrayList<XltCharBuffer> parseV2()
+    {
+        result.clear();
+        var x = CsvUtilsDecodeV2.parse(result, data[r.nextInt(data.length)], ',');
 
         return x;
     }

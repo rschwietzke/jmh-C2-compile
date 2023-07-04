@@ -17,6 +17,7 @@ import org.openjdk.jmh.infra.BenchmarkParams;
 
 import com.xceptance.common.lang.XltCharBuffer;
 import com.xceptance.common.util.CsvUtilsDecode;
+import com.xceptance.common.util.CsvUtilsDecodeV2;
 import com.xceptance.common.util.SimpleArrayList;
 
 /**
@@ -29,7 +30,7 @@ import com.xceptance.common.util.SimpleArrayList;
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 @Warmup(iterations = 3, time = 2, timeUnit = TimeUnit.SECONDS)
-@Measurement(iterations = 10, time = 2, timeUnit = TimeUnit.SECONDS)
+@Measurement(iterations = 3, time = 2, timeUnit = TimeUnit.SECONDS)
 @Fork(1)
 public class B03a_ShortWarmupAndTest
 {
@@ -52,6 +53,24 @@ public class B03a_ShortWarmupAndTest
     {
         result.clear();
         var x = CsvUtilsDecode.parse(result, src, ',');
+
+        return x;
+    }
+
+    @Benchmark
+    public SimpleArrayList<XltCharBuffer> parseV2()
+    {
+        result.clear();
+        var x = CsvUtilsDecodeV2.parse(result, src, ',');
+
+        return x;
+    }
+
+    @Benchmark
+    public SimpleArrayList<XltCharBuffer> parseV3()
+    {
+        result.clear();
+        var x = CsvUtilsDecodeV2.parse(result, src, ',');
 
         return x;
     }

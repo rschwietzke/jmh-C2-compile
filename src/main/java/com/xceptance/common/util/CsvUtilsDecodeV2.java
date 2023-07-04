@@ -17,8 +17,6 @@ package com.xceptance.common.util;
 
 import java.text.ParseException;
 
-import org.apache.commons.math3.util.Pair;
-
 import com.xceptance.common.lang.XltCharBuffer;
 
 /**
@@ -27,9 +25,10 @@ import com.xceptance.common.lang.XltCharBuffer;
  * This is the high performance and most efficient method. It will avoid copying
  * data at all cost and move
  * through the cache very efficently.
- * 
+ *
  * @author René Schwietzke
- * 
+ * @author Benjamin
+ *
  * @since 7.0.0
  */
 public final class CsvUtilsDecodeV2
@@ -54,7 +53,7 @@ public final class CsvUtilsDecodeV2
     /**
      * Decodes the given CSV-encoded data record and returns the plain unquoted
      * fields.
-     * 
+     *
      * @param s
      *          the CSV-encoded data record
      * @return the plain fields
@@ -73,7 +72,7 @@ public final class CsvUtilsDecodeV2
     /**
      * Encodes the given fields to a CSV-encoded data record using the given field
      * separator.
-     * 
+     *
      * @param list           a list to append to, for memory efficiency, we hand one
      *                       in instead of creating our own
      * @param src            the buffer to read from
@@ -97,9 +96,9 @@ public final class CsvUtilsDecodeV2
                     break;
 
                 case COLLECT_QUOTED:
-                    Pair<Integer, Integer> toOffset = stateCollectQuoted(pos, src);
-                    to = toOffset.getKey();
-                    from += toOffset.getValue() + 1;
+                    final long combinedPosition = stateCollectQuoted(pos, src);
+                    from += ((int)combinedPosition) + 1;
+                    to = (int)(combinedPosition >> 32);
                     pos = to + 1;
                     break;
 
@@ -131,13 +130,16 @@ public final class CsvUtilsDecodeV2
         if (src.charAt(pos) == QUOTE_CHAR && src.peakAhead(pos + 1) == QUOTE_CHAR && src.length() == 2)
         {
             return EMPTY_QUOTED;
-        } else if (src.charAt(pos) == QUOTE_CHAR)
+        }
+        else if (src.charAt(pos) == QUOTE_CHAR)
         {
             return COLLECT_QUOTED;
-        } else if (src.charAt(pos) == fieldSeparator)
+        }
+        else if (src.charAt(pos) == fieldSeparator)
         {
             return WRITE;
-        } else
+        }
+        else
         {
             return COLLECT;
         }
@@ -157,7 +159,7 @@ public final class CsvUtilsDecodeV2
         return pos;
     }
 
-    private static Pair<Integer, Integer> stateCollectQuoted(int pos, final XltCharBuffer src)
+    private static long stateCollectQuoted(int pos, final XltCharBuffer src)
     {
         pos++;
 
@@ -171,14 +173,15 @@ public final class CsvUtilsDecodeV2
                 pos++;
                 shiftRight(src, from, pos);
                 offset++;
-            } else if (src.charAt(pos) == QUOTE_CHAR)
+            }
+            else if (src.charAt(pos) == QUOTE_CHAR)
             {
-                return new Pair<>(pos, offset);
+                return ((long)pos << 32) + offset;
             }
             pos++;
         }
 
-        return new Pair<>(pos, offset);
+        return ((long)pos << 32) + offset;
     }
 
     /**
