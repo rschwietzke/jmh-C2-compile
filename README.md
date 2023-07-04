@@ -104,6 +104,10 @@ The advanced test case, where warm-up and measurement data have to differ, keeps
 
 All measurements have been taken on a Google Cloud c2-standard-8 instance. Similar data has been seen on a Lenovo T14s AMD.
 
+Update: Data for latest JDK21.ea.29, Eclipse J9, and Azul Zing have been added. It is interesting to see that J9 has a general training imbalance for quoted data and Zing has in general larger runtimes. Neither J9 or Zing are officially supported by JMH, hence we have to take the numbers with a grain of salt.
+
+Additionally, I updated the JDK21.ea.25 data as well. It seems, that JDK 21 is in some areas significantly slower than JDK 17.
+
 ![Measurement Data](/assets/data.png)
 
 We compiled additional test cases to vary data a little more.
@@ -130,4 +134,3 @@ Disabling tiered compilation does not have any effect.
 For completeness, we added measurements for each compiler level. Level 3 produces the interesing values, because a lot of profiling code is still part of the code. When we train with quoted, we get runtimes different from the others due to the different set of profiling instructions. It already shows the tendency to be slower as we see finally with level 4. This is an observation, not a conclusion.
 
 ![Measurement Data](/assets/measurement-compilerlevels.png)
-
