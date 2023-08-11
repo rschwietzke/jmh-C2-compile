@@ -22,7 +22,7 @@ import org.junit.Assert;
 import com.xceptance.common.lang.XltCharBuffer;
 import com.xceptance.common.util.CsvUtilsDecodeV2;
 
-public class CSVUtilsDecodeV2Test extends AbstratCSVUtilsDecodeTest
+public class CSVUtilsDecodeV2Test extends AbstractCSVUtilsDecodeTest
 {
     void test_noQuoteConversion(String s, String... expected)
     {

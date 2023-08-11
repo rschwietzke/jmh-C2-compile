@@ -17,6 +17,8 @@ package com.xceptance.common.util;
 
 import java.text.ParseException;
 
+import org.openjdk.jmh.annotations.CompilerControl;
+
 import com.xceptance.common.lang.XltCharBuffer;
 
 /**

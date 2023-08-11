@@ -18,6 +18,8 @@ package com.xceptance.common.util;
 
 import java.text.ParseException;
 
+import org.openjdk.jmh.annotations.CompilerControl;
+
 import com.xceptance.common.lang.XltCharBuffer;
 
 /**
@@ -80,24 +82,37 @@ public final class CsvUtilsDecodeV3
     {
         final int size = src.length();
 
-        int state = START;
         int pos = 0;
         int start = 0;
-        int offset = 0;
 
-        for (; pos < size; pos++)
+        while (pos < size)
         {
             final char c = src.charAt(pos);
             if (c == fieldSeparator)
             {
-                result.add(start == pos ? XltCharBuffer.empty() : src.substring(start, pos));
-                start = pos + 1;
+                if (start != pos)
+                {
+                    result.add(src.viewFromTo(start, pos));
+                }
+                else
+                {
+                    result.add(XltCharBuffer.EMPTY);
+                }
+                start = ++pos;
+            }
+            else
+            {
+                pos++;
             }
         }
 
-        if (start <= pos)
+        if (start < pos)
         {
-            result.add(start == pos ? XltCharBuffer.empty() : src.substring(start, pos));
+            result.add(src.viewFromTo(start, pos));
+        }
+        else if (start == pos)
+        {
+            result.add(XltCharBuffer.EMPTY);
         }
 
         return result;

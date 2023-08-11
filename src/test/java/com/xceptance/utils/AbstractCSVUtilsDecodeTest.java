@@ -15,11 +15,26 @@
  */
 package com.xceptance.utils;
 
+import java.util.List;
+
+import org.junit.Assert;
 import org.junit.Test;
+
+import com.xceptance.common.lang.XltCharBuffer;
+import com.xceptance.common.util.CsvUtilsDecodeV2;
 
 public abstract class AbstractCSVUtilsDecodeTest
 {
-    abstract void test_noQuoteConversion(String s, String... expected);
+    void test_noQuoteConversion(String s, String... expected)
+    {
+        final List<XltCharBuffer> result = CsvUtilsDecodeV2.parse(s);
+
+        Assert.assertEquals(expected.length, result.size());
+        for (int i = 0; i < expected.length; i++)
+        {
+            Assert.assertEquals(expected[i], result.get(i).toString());
+        }
+    }
 
     void test(String s, String... expected)
     {

@@ -64,12 +64,9 @@ public class SimpleArrayList<T> implements List<T>
      */
     public boolean add(T element)
     {
-        final int length = data.length;
-        if (size == length)
+        if (size == data.length)
         {
-            final T[] newData = (T[]) new Object[data.length << 1];
-            System.arraycopy(data, 0, newData, 0, length);
-            data = newData;
+            data = Arrays.copyOf(data, data.length << 1);
         }
 
         data[size] = element;
