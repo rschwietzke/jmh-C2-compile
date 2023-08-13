@@ -20,6 +20,9 @@ import org.openjdk.jmh.annotations.Warmup;
 
 import com.xceptance.common.lang.XltCharBuffer;
 import com.xceptance.common.util.CsvLineDecoder;
+import com.xceptance.common.util.CsvLineDecoder2;
+import com.xceptance.common.util.CsvLineDecoder3;
+import com.xceptance.common.util.CsvParserException;
 import com.xceptance.common.util.CsvUtilsDecode;
 import com.xceptance.common.util.CsvUtilsDecodeV2;
 import com.xceptance.common.util.CsvUtilsDecodeV3;
@@ -117,6 +120,39 @@ public class B11_FullFileTest
         {
             result.clear();
             var r = CsvLineDecoder.parse(result, XltCharBuffer.valueOf(line), ',');
+            count += r.size();
+        }
+
+        return count;
+    }
+    @Benchmark
+    public int parseV5() throws IOException
+    {
+        int count = 0;
+
+        var result = new SimpleArrayList<XltCharBuffer>(50);
+        String line = null;
+        while ((line = reader.readLine()) != null)
+        {
+            result.clear();
+            var r = CsvLineDecoder2.parse(result, XltCharBuffer.valueOf(line), ',');
+            count += r.size();
+        }
+
+        return count;
+    }
+
+    @Benchmark
+    public int parseV6() throws IOException
+    {
+        int count = 0;
+
+        var result = new SimpleArrayList<XltCharBuffer>(50);
+        String line = null;
+        while ((line = reader.readLine()) != null)
+        {
+            result.clear();
+            var r = CsvLineDecoder3.parse(result, XltCharBuffer.valueOf(line));
             count += r.size();
         }
 

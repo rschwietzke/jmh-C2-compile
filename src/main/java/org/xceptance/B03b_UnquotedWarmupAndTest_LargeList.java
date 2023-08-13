@@ -19,10 +19,11 @@ import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.infra.BenchmarkParams;
 
 import com.xceptance.common.lang.XltCharBuffer;
+import com.xceptance.common.util.CsvLineDecoder;
+import com.xceptance.common.util.CsvLineDecoder2;
+import com.xceptance.common.util.CsvLineDecoder3;
 import com.xceptance.common.util.CsvUtilsDecode;
 import com.xceptance.common.util.CsvUtilsDecodeV2;
-import com.xceptance.common.util.CsvUtilsDecodeV3;
-import com.xceptance.common.util.CsvLineDecoder;
 import com.xceptance.common.util.SimpleArrayList;
 
 /**
@@ -78,17 +79,35 @@ public class B03b_UnquotedWarmupAndTest_LargeList
         return x;
     }
 
-//    @Test
-//    public void test()
-//    {
-//        src = XltCharBuffer.valueOf(LONG);
-//
-//        var x1 = CsvUtilsDecode.parse(new SimpleArrayList<>(10), src, ',');
-//        var x2 = CsvUtilsDecodeV2.parse(new SimpleArrayList<>(10), src, ',');
-//        var x3 = CsvUtilsDecodeV3.parse(new SimpleArrayList<>(10), src, ',');
-//        var x4 = CsvLineDecoder.parse(new SimpleArrayList<>(10), src, ',');
-//        assertArrayEquals(x1.toArray(), x2.toArray());
-//        assertArrayEquals(x2.toArray(), x3.toArray());
-//        assertArrayEquals(x1.toArray(), x4.toArray());
-//    }
+    @Benchmark
+    public SimpleArrayList<XltCharBuffer> parseV5()
+    {
+        result.clear();
+        var x = CsvLineDecoder2.parse(result, src, ',');
+
+        return x;
+    }
+
+    @Benchmark
+    public SimpleArrayList<XltCharBuffer> parseV6()
+    {
+        result.clear();
+        var x = CsvLineDecoder3.parse(result, src);
+
+        return x;
+    }
+
+    @Test
+    public void test()
+    {
+        src = XltCharBuffer.valueOf(LONG);
+
+        var x1 = CsvUtilsDecode.parse(new SimpleArrayList<>(10), src, ',');
+        var x2 = CsvUtilsDecodeV2.parse(new SimpleArrayList<>(10), src, ',');
+        var x3 = CsvLineDecoder.parse(new SimpleArrayList<>(10), src, ',');
+        var x4 = CsvLineDecoder2.parse(new SimpleArrayList<>(10), src, ',');
+        assertArrayEquals(x1.toArray(), x2.toArray());
+        assertArrayEquals(x2.toArray(), x3.toArray());
+        assertArrayEquals(x3.toArray(), x4.toArray());
+    }
 }
