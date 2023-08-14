@@ -22,11 +22,11 @@ import com.xceptance.common.lang.XltCharBuffer;
 /**
  * The {@link CsvLineDecoder3} class provides helper methods to encode and decode values to/from the CSV format.
  * This is the high performance and most efficient method. It will avoid copying data at all cost and move
- * through the cache very efficently.
+ * through the cache very efficiently.
  *
  * @author René Schwietzke
  *
- * @since 7.0.0
+ * @since 7.2.0
  */
 public final class CsvLineDecoder3
 {
@@ -59,22 +59,6 @@ public final class CsvLineDecoder3
     {
         return parse(new SimpleArrayList<>(50), XltCharBuffer.valueOf(s));
     }
-
-    // our bit flags for the parser
-    private static final int NONE = 0;
-    private static final int COL = 1;
-    private static final int STARTQUOTED = 2;
-    private static final int ENDCOL = 4;
-    private static final int QUOTED_COL = 8;
-    private static final int QUOTED_COL_QUOTE = 16;
-    private static final int QUOTED_COL_MOVE = 32;
-    private static final int END_QUOTED_COL = 64;
-    private static final int STARTCOL = 128;
-
-    private static final int CHAR = 0;
-    private static final int STATE = 1;
-    private static final int START = 2;
-    private static final int POS = 3;
 
     /**
      * Encodes the given fields to a CSV-encoded data record using the given field separator.

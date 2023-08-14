@@ -9,6 +9,7 @@ import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
@@ -33,11 +34,14 @@ import com.xceptance.common.util.SimpleArrayList;
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 @Warmup(iterations = 3, time = 2, timeUnit = TimeUnit.SECONDS)
-@Measurement(iterations = 10, time = 2, timeUnit = TimeUnit.SECONDS)
+@Measurement(iterations = 3, time = 2, timeUnit = TimeUnit.SECONDS)
 @Fork(1)
 public class B05f_QuotedWarmupAndUnquotedTest
 {
     int iterationCount = 0;
+
+    @Param({"50"})
+    int SIZE = 1;
 
     XltCharBuffer src;
     SimpleArrayList<XltCharBuffer> result;
@@ -51,7 +55,7 @@ public class B05f_QuotedWarmupAndUnquotedTest
     {
         iterationCount++;
 
-        result = new SimpleArrayList<>(50);
+        result = new SimpleArrayList<>(SIZE);
 
         if (iterationCount <= params.getWarmup().getCount())
         {
@@ -107,4 +111,5 @@ public class B05f_QuotedWarmupAndUnquotedTest
 
         return x;
     }
+
 }
