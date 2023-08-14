@@ -51,7 +51,7 @@ public class B05f_QuotedWarmupAndUnquotedTest
     {
         iterationCount++;
 
-        result = new SimpleArrayList<>(10);
+        result = new SimpleArrayList<>(50);
 
         if (iterationCount <= params.getWarmup().getCount())
         {

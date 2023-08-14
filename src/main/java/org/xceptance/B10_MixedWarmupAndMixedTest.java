@@ -53,7 +53,7 @@ public class B10_MixedWarmupAndMixedTest
     {
         iterationCount++;
 
-        result = new SimpleArrayList<>(10);
+        result = new SimpleArrayList<>(50);
         data = DATA;
     }
 

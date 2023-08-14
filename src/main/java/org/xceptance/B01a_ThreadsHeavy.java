@@ -39,7 +39,7 @@ public class B01a_ThreadsHeavy
     @Setup
     public void setup()
     {
-        result = new SimpleArrayList<>(10);
+        result = new SimpleArrayList<>(50);
         src = XltCharBuffer.valueOf("T,TFlashCheckout,1666958662310,17729,false,,,,");
     }
 

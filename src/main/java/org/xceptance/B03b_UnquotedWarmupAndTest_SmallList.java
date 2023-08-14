@@ -47,7 +47,7 @@ public class B03b_UnquotedWarmupAndTest_SmallList
     @Setup(Level.Iteration)
     public void setup(BenchmarkParams params) throws InterruptedException
     {
-        result = new SimpleArrayList<>(1);
+        result = new SimpleArrayList<>(50);
         src = XltCharBuffer.valueOf(LONG);
     }
 

@@ -61,7 +61,7 @@ public class B08b_UnquotedWarmupAndMixedTest
     {
         iterationCount++;
 
-        result = new SimpleArrayList<>(10);
+        result = new SimpleArrayList<>(50);
 
         if (iterationCount <= params.getWarmup().getCount())
         {

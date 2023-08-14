@@ -49,7 +49,7 @@ public class B05e_QuotedWarmupAndShortTest
     {
         iterationCount++;
 
-        result = new SimpleArrayList<>(10);
+        result = new SimpleArrayList<>(50);
 
         if (iterationCount <= params.getWarmup().getCount())
         {

@@ -60,7 +60,7 @@ public class B07c_QuotedWarmupAndLongMixedTest
     {
         iterationCount++;
 
-        result = new SimpleArrayList<>(10);
+        result = new SimpleArrayList<>(50);
 
         if (iterationCount <= params.getWarmup().getCount())
         {
