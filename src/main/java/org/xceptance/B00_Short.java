@@ -11,12 +11,14 @@ import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
-import org.openjdk.jmh.annotations.Threads;
 import org.openjdk.jmh.annotations.Warmup;
-import org.openjdk.jmh.infra.Blackhole;
 
 import com.xceptance.common.lang.XltCharBuffer;
+import com.xceptance.common.util.CsvLineDecoder;
+import com.xceptance.common.util.CsvLineDecoder2;
+import com.xceptance.common.util.CsvLineDecoder3;
 import com.xceptance.common.util.CsvUtilsDecode;
+import com.xceptance.common.util.CsvUtilsDecodeV2;
 import com.xceptance.common.util.SimpleArrayList;
 
 /**
@@ -48,6 +50,42 @@ public class B00_Short
     {
         result.clear();
         var x = CsvUtilsDecode.parse(result, src, ',');
+
+        return x;
+    }
+
+    @Benchmark
+    public SimpleArrayList<XltCharBuffer> parseV2()
+    {
+        result.clear();
+        var x = CsvUtilsDecodeV2.parse(result, src, ',');
+
+        return x;
+    }
+
+    @Benchmark
+    public SimpleArrayList<XltCharBuffer> parseV4()
+    {
+        result.clear();
+        var x = CsvLineDecoder.parse(result, src, ',');
+
+        return x;
+    }
+
+    @Benchmark
+    public SimpleArrayList<XltCharBuffer> parseV5()
+    {
+        result.clear();
+        var x = CsvLineDecoder2.parse(result, src, ',');
+
+        return x;
+    }
+
+    @Benchmark
+    public SimpleArrayList<XltCharBuffer> parseV6()
+    {
+        result.clear();
+        var x = CsvLineDecoder3.parse(result, src);
 
         return x;
     }
