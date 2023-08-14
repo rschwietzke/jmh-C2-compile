@@ -1,6 +1,6 @@
 package com.xceptance.common.util;
 /*
- * Copyright (c) 2005-2022 Xceptance Software Technologies GmbH
+ * Copyright (c) 2005-2023 Xceptance Software Technologies GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,14 @@ package com.xceptance.common.util;
  * limitations under the License.
  */
 
-import java.text.ParseException;
-
 import com.xceptance.common.lang.XltCharBuffer;
 
 /**
  * The {@link CsvLineDecoder3} class provides helper methods to encode and decode values to/from the CSV format.
  * This is the high performance and most efficient method. It will avoid copying data at all cost and move
  * through the cache very efficiently.
+ *
+ * This is a very limited version that has only COMMA support. If you need more, use the old version.
  *
  * @author René Schwietzke
  *
@@ -53,7 +53,7 @@ public final class CsvLineDecoder3
      * @param s
      *            the CSV-encoded data record
      * @return the plain fields
-     * @throws ParseException
+     * @throws CsvParserException
      */
     public static SimpleArrayList<XltCharBuffer> parse(final String s)
     {
@@ -68,7 +68,7 @@ public final class CsvLineDecoder3
      * @param delimiter the field separator to use
      * @return the decoded data record
      *
-     * @throws ParseException
+     * @throws CsvParserException in case delimiters are incorrect or mostly due to incorrect quotes or quoted quotes
      */
     public static SimpleArrayList<XltCharBuffer> parse(final SimpleArrayList<XltCharBuffer> result, final XltCharBuffer src)
     {
@@ -106,9 +106,19 @@ public final class CsvLineDecoder3
         return result;
     }
 
-    private static int startCol(
-                    final SimpleArrayList<XltCharBuffer> result, final XltCharBuffer src,
-                    final int currentPos)
+    /**
+     * Reads a full column of the line without support for quotes, because the started with unquoted.
+     * We end the field at a COMMA.
+     *
+     * @param result the final result array (holds the columns)
+     * @param src the source line to be parsed
+     * @param currentPos the position from where to read
+     *
+     * @return the next position to read
+     *
+     * @throws CsvParserException in case delimiters are incorrect or mostly due to incorrect quotes or quoted quotes
+     */
+    private static int startCol(final SimpleArrayList<XltCharBuffer> result, final XltCharBuffer src, final int currentPos)
     {
         int length = src.length();
         int pos = currentPos;
@@ -136,9 +146,20 @@ public final class CsvLineDecoder3
         return pos;
     }
 
-    private static int startQuotedCol(
-                    final SimpleArrayList<XltCharBuffer> result, final XltCharBuffer src,
-                    final int currentPos)
+    /**
+     * Reads a full column of the line with support for quoted quotes and such that a COMMA as delimiter will
+     * be ignored when in quotes. If a quote is not followed by another quote, the column is ended and
+     * we expect a delimiter aka COMMA.
+     *
+     * @param result the final result array (holds the columns)
+     * @param src the source line to be parsed
+     * @param currentPos the position from where to read
+     *
+     * @return the next position to read
+     *
+     * @throws CsvParserException in case delimiters are incorrect or mostly due to incorrect quotes or quoted quotes
+     */
+    private static int startQuotedCol(final SimpleArrayList<XltCharBuffer> result, final XltCharBuffer src, final int currentPos)
     {
         int length = src.length();
         int pos = currentPos + 1;
@@ -185,22 +206,29 @@ public final class CsvLineDecoder3
         throw new CsvParserException("Quoted col has not been properly closed");
     }
 
+    /**
+     * If we encountered a quoted quote, we finish the rest of the data with this routine.
+     *
+     * @param result the final result array (holds the columns)
+     * @param src the source line to be parsed
+     * @param currentPos the position from where to read
+     *
+     * @return the next position to read
+
+     * @throws CsvParserException in case delimiters are incorrect or mostly due to incorrect quotes or quoted quotes
+     */
     private static int endQuotedQuotesCol(
                     final SimpleArrayList<XltCharBuffer> result, final XltCharBuffer src,
                     final int start, final int currentPos)
     {
         int length = src.length();
-        int pos = currentPos;
-        int move = 1;
-
-        // move current ""
-        src.put(pos - move, QUOTE_CHAR);
-        pos++;
+        int pos = currentPos + 1;
+        int offset = 1;
 
         while (pos < length)
         {
             final char c = src.charAt(pos);
-            src.put(pos - move, c);
+            src.put(pos - offset, c);
 
             if (c == QUOTE_CHAR)
             {
@@ -208,10 +236,12 @@ public final class CsvLineDecoder3
                 final int nextChar = src.peakAhead(pos + 1);
                 if (nextChar == QUOTE_CHAR)
                 {
-                    // more quotes quotes
-                    move++;
+                    // quoted quote
+                    // increase offset distance
+                    offset++;
+
+                    // next new position plus skipping one quote
                     pos += 2;
-                    continue;
                 }
                 else
                 {
@@ -222,9 +252,9 @@ public final class CsvLineDecoder3
                         throw new CsvParserException("Delimiter or end of line expected at pos: " + pos);
                     }
 
-                    // get us our string and exclude the garbage at the end because we move a lot
+                    // get us our string and exclude the garbage at the end because we moved a lot
                     // around
-                    result.add(src.substring(start, pos - move));
+                    result.add(src.substring(start, pos - offset));
 
                     // ensure we continue with the next fresh field, we checked the delimiter already
                     return pos + 1;

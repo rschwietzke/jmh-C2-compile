@@ -48,7 +48,7 @@ public class CsvLineDecoderTest3
     {
         try
         {
-            final List<XltCharBuffer> result = CsvLineDecoder2.parse(s.replace("'", "\""));
+            final List<XltCharBuffer> result = CsvLineDecoder3.parse(s.replace("'", "\""));
         }
         catch(CsvParserException e)
         {
