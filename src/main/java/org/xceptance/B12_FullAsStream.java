@@ -18,6 +18,7 @@ import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.Threads;
 import org.openjdk.jmh.annotations.Warmup;
 
 import com.xceptance.common.lang.XltCharBuffer;
@@ -40,7 +41,8 @@ import com.xceptance.common.util.SimpleArrayList;
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Warmup(iterations = 3, time = 2, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 5, time = 2, timeUnit = TimeUnit.SECONDS)
-@Fork(1)
+@Threads(4)
+@Fork(10)
 public class B12_FullAsStream
 {
     List<XltCharBuffer> data = new ArrayList<>(1000);
