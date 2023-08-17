@@ -40,8 +40,8 @@ import com.xceptance.common.util.SimpleArrayList;
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Warmup(iterations = 3, time = 2, timeUnit = TimeUnit.SECONDS)
-@Measurement(iterations = 5, time = 2, timeUnit = TimeUnit.SECONDS)
-@Threads(4)
+@Measurement(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
+@Threads(1)
 @Fork(10)
 public class B12_FullAsStream
 {
