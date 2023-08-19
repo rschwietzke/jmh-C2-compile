@@ -1,5 +1,6 @@
 package org.xceptance;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -22,11 +23,11 @@ public class B99_FullFileTest
             long count = 0;
             if (args[0].endsWith("gz"))
             {
-                reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(args[0]))));
+                reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new BufferedInputStream(new FileInputStream(args[0])))));
             }
             else
             {
-                reader = new BufferedReader(new InputStreamReader(new FileInputStream(args[0])));
+                reader = new BufferedReader(new InputStreamReader(new BufferedInputStream(new FileInputStream(args[0]))));
             }
 
             String line;
