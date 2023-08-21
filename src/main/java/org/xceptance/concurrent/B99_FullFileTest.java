@@ -33,21 +33,27 @@ public class B99_FullFileTest
     {
         if (args.length == 0)
         {
-            System.err.println("<dir> <readerThread> <parserThreads> <randomSeed>");
+            System.err.println("<dir> <readerThread> <parserThreads> [<randomSeed>]");
             return;
         }
-        System.out.printf("#####################################################%n");
 
         final int readerThreadCount = Integer.parseInt(args[1]);
         final int parserThreadCount = Integer.parseInt(args[2]);
-        final int randomSeed = Integer.parseInt(args[3]);
+        final int randomSeed = args.length < 4 ? -1 : Integer.parseInt(args[3]);
+
+        System.out.printf("#### Reader: %d Parser: %d Seed: %d%n", readerThreadCount, parserThreadCount, randomSeed);
 
         final int totalThreads = readerThreadCount + parserThreadCount;
 
         // get us all files
         final List<Path> files = getFiles(args[0]);
-        System.out.printf("Shuffling input data with seed: %d%n", randomSeed);
-        Collections.shuffle(files, new Random(randomSeed));
+        System.out.printf("Found %d files for processsing%n", files.size());
+
+        if (randomSeed >= 0)
+        {
+            System.out.printf("Shuffling input data with seed: %d%n", randomSeed);
+            Collections.shuffle(files, new Random(randomSeed));
+        }
 
         final Dispatcher dispatcher = new Dispatcher(totalThreads);
 
@@ -60,7 +66,6 @@ public class B99_FullFileTest
         }
 
         final int chunckSize = files.size() / readerThreadCount;
-        System.out.printf("Found %d files for processsing%n", files.size());
 
         final List<Thread> readerThreads = new ArrayList<>();
         for (int i = 0; i < readerThreadCount; i++)
