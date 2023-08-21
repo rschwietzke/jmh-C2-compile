@@ -196,7 +196,7 @@ public final class CsvLineDecoder_V1_FirstRewriteAttempt
         // we have not finished and so we fail aka " are not matching
         if (data[STATE] == QUOTED_COL)
         {
-            throw new CsvParserException("Quote expected but line does not end with it");
+            throw new CsvParserException("Quote expected but line does not end with it", src.toString());
         }
     }
 
@@ -241,7 +241,7 @@ public final class CsvLineDecoder_V1_FirstRewriteAttempt
                     }
                     else
                     {
-                        throw new CsvParserException(String.format("Delimiter or end of line expected at pos %d", pos + 1));
+                        throw new CsvParserException(String.format("Delimiter or end of line expected at pos %d", pos + 1), src.toString());
                     }
                 }
             }
@@ -252,7 +252,7 @@ public final class CsvLineDecoder_V1_FirstRewriteAttempt
         if (data[STATE] != STARTCOL)
         {
             // we have not finished correctly
-            throw new CsvParserException(String.format("Incorrectly quoted quotes, last pos: ", data[POS]));
+            throw new CsvParserException(String.format("Incorrectly quoted quotes, last pos: ", data[POS]), src.toString());
         }
     }
 
@@ -274,7 +274,7 @@ public final class CsvLineDecoder_V1_FirstRewriteAttempt
         }
         else
         {
-            throw new CsvParserException(String.format("Delimiter or end of line expected at pos %d", data[POS] + 1));
+            throw new CsvParserException(String.format("Delimiter or end of line expected at pos %d", data[POS] + 1), src.toString());
         }
     }
 }

@@ -171,7 +171,7 @@ public final class CsvLineDecoder_V2_Stateless
                     final char nextChar = src.peakAhead(pos);
                     if (!(nextChar == 0 || nextChar == delimiter))
                     {
-                        throw new CsvParserException("Delimiter or end of line expected at pos: " + pos);
+                        throw new CsvParserException("Delimiter or end of line expected at pos: " + pos, src.toString());
                     }
 
                     return pos + 1;
@@ -182,7 +182,7 @@ public final class CsvLineDecoder_V2_Stateless
 
         // ok, we got here, because we ran out of input, but we have not closed the field,
         // so raise a complaint
-        throw new CsvParserException("Quoted col has not been properly closed");
+        throw new CsvParserException("Quoted col has not been properly closed", src.toString());
     }
 
     private static int endQuotedQuotesCol(
@@ -219,7 +219,7 @@ public final class CsvLineDecoder_V2_Stateless
                     // we must see a , next or nothing, otherwise something is wrong
                     if (!(nextChar == 0 || nextChar == delimiter))
                     {
-                        throw new CsvParserException("Delimiter or end of line expected at pos: " + pos);
+                        throw new CsvParserException("Delimiter or end of line expected at pos: " + pos, src.toString());
                     }
 
                     // get us our string and exclude the garbage at the end because we move a lot
@@ -237,6 +237,6 @@ public final class CsvLineDecoder_V2_Stateless
         }
 
         // ok... we have not properly ended things
-        throw new CsvParserException("Quoted field with quotes was not ended properly at: " + pos);
+        throw new CsvParserException("Quoted field with quotes was not ended properly at: " + pos, src.toString());
     }
 }
