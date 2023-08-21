@@ -26,15 +26,15 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.xceptance.common.lang.XltCharBuffer;
-import com.xceptance.common.util.CsvLineDecoder;
-import com.xceptance.common.util.CsvLineDecoder2;
+import com.xceptance.common.util.CsvLineDecoder_V1_FirstRewriteAttempt;
+import com.xceptance.common.util.CsvLineDecoder_V3_FixedDelimiter;
 import com.xceptance.common.util.CsvParserException;
 
-public class CsvLineDecoderTest2
+public class CsvLineDecoder_V3_Test
 {
     void test(String s, String... expected)
     {
-        final List<XltCharBuffer> result = CsvLineDecoder2.parse(s.replace("'", "\""));
+        final List<XltCharBuffer> result = CsvLineDecoder_V3_FixedDelimiter.parse(s.replace("'", "\""));
 
         Assert.assertEquals(expected.length, result.size());
         for (int i = 0; i < expected.length; i++)
@@ -47,7 +47,7 @@ public class CsvLineDecoderTest2
     {
         try
         {
-            final List<XltCharBuffer> result = CsvLineDecoder2.parse(s.replace("'", "\""));
+            final List<XltCharBuffer> result = CsvLineDecoder_V3_FixedDelimiter.parse(s.replace("'", "\""));
         }
         catch(CsvParserException e)
         {
@@ -61,7 +61,7 @@ public class CsvLineDecoderTest2
     @Test
     public void empty()
     {
-        var r = CsvLineDecoder.parse("");
+        var r = CsvLineDecoder_V1_FirstRewriteAttempt.parse("");
         assertEquals(0, r.size());
     }
 

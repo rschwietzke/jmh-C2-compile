@@ -16,7 +16,7 @@ import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.infra.Blackhole;
 
 import com.xceptance.common.lang.XltCharBuffer;
-import com.xceptance.common.util.CsvUtilsDecode;
+import com.xceptance.common.util.CsvUtilsDecode_V1_Original;
 import com.xceptance.common.util.SimpleArrayList;
 
 /**
@@ -48,7 +48,7 @@ public class B01a_ThreadsHeavy
     public SimpleArrayList<XltCharBuffer> parse()
     {
         result.clear();
-        var x = CsvUtilsDecode.parse(result, src, ',');
+        var x = CsvUtilsDecode_V1_Original.parse(result, src, ',');
         Blackhole.consumeCPU(5120);
 
         return x;

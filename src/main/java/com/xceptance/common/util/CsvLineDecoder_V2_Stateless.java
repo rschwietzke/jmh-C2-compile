@@ -20,7 +20,7 @@ import java.text.ParseException;
 import com.xceptance.common.lang.XltCharBuffer;
 
 /**
- * The {@link CsvLineDecoder2} class provides helper methods to encode and decode values to/from the CSV format.
+ * The {@link CsvLineDecoder_V2_Stateless} class provides helper methods to encode and decode values to/from the CSV format.
  * This is the high performance and most efficient method. It will avoid copying data at all cost and move
  * through the cache very efficently.
  *
@@ -28,7 +28,7 @@ import com.xceptance.common.lang.XltCharBuffer;
  *
  * @since 7.0.0
  */
-public final class CsvLineDecoder2
+public final class CsvLineDecoder_V2_Stateless
 {
     /**
      * Character constant representing a comma.
@@ -43,7 +43,7 @@ public final class CsvLineDecoder2
     /**
      * Default constructor. Declared private to prevent external instantiation.
      */
-    private CsvLineDecoder2()
+    private CsvLineDecoder_V2_Stateless()
     {
     }
 
@@ -59,22 +59,6 @@ public final class CsvLineDecoder2
     {
         return parse(new SimpleArrayList<>(50), XltCharBuffer.valueOf(s), COMMA);
     }
-
-    // our bit flags for the parser
-    private static final int NONE = 0;
-    private static final int COL = 1;
-    private static final int STARTQUOTED = 2;
-    private static final int ENDCOL = 4;
-    private static final int QUOTED_COL = 8;
-    private static final int QUOTED_COL_QUOTE = 16;
-    private static final int QUOTED_COL_MOVE = 32;
-    private static final int END_QUOTED_COL = 64;
-    private static final int STARTCOL = 128;
-
-    private static final int CHAR = 0;
-    private static final int STATE = 1;
-    private static final int START = 2;
-    private static final int POS = 3;
 
     /**
      * Encodes the given fields to a CSV-encoded data record using the given field separator.

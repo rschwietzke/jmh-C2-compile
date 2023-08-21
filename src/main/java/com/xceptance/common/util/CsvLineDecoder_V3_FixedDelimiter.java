@@ -18,7 +18,7 @@ package com.xceptance.common.util;
 import com.xceptance.common.lang.XltCharBuffer;
 
 /**
- * The {@link CsvLineDecoder3} class provides helper methods to encode and decode values to/from the CSV format.
+ * The {@link CsvLineDecoder_V3_FixedDelimiter} class provides helper methods to encode and decode values to/from the CSV format.
  * This is the high performance and most efficient method. It will avoid copying data at all cost and move
  * through the cache very efficiently.
  *
@@ -28,7 +28,7 @@ import com.xceptance.common.lang.XltCharBuffer;
  *
  * @since 7.2.0
  */
-public final class CsvLineDecoder3
+public final class CsvLineDecoder_V3_FixedDelimiter
 {
     /**
      * Character constant representing a comma.
@@ -43,7 +43,7 @@ public final class CsvLineDecoder3
     /**
      * Default constructor. Declared private to prevent external instantiation.
      */
-    private CsvLineDecoder3()
+    private CsvLineDecoder_V3_FixedDelimiter()
     {
     }
 
@@ -192,7 +192,7 @@ public final class CsvLineDecoder3
                     final char nextChar = src.peakAhead(pos);
                     if (!(nextChar == 0 || nextChar == COMMA))
                     {
-                        throw new CsvParserException("Delimiter or end of line expected at pos: " + pos);
+                        throw new CsvParserException("Delimiter or end of line expected at pos: " + pos, src.toString());
                     }
 
                     return pos + 1;
@@ -203,7 +203,7 @@ public final class CsvLineDecoder3
 
         // ok, we got here, because we ran out of input, but we have not closed the field,
         // so raise a complaint
-        throw new CsvParserException("Quoted col has not been properly closed");
+        throw new CsvParserException("Quoted col has not been properly closed", src.toString());
     }
 
     /**
@@ -249,7 +249,7 @@ public final class CsvLineDecoder3
                     // we must see a , next or nothing, otherwise something is wrong
                     if (!(nextChar == 0 || nextChar == COMMA))
                     {
-                        throw new CsvParserException("Delimiter or end of line expected at pos: " + pos);
+                        throw new CsvParserException("Delimiter or end of line expected at pos: " + pos, src.toString());
                     }
 
                     // get us our string and exclude the garbage at the end because we moved a lot
@@ -267,6 +267,6 @@ public final class CsvLineDecoder3
         }
 
         // ok... we have not properly ended things
-        throw new CsvParserException("Quoted field with quotes was not ended properly at: " + pos);
+        throw new CsvParserException("Quoted field with quotes was not ended properly at: " + pos, src.toString());
     }
 }

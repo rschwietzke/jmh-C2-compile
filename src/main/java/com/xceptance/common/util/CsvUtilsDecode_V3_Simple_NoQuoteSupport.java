@@ -23,15 +23,17 @@ import org.openjdk.jmh.annotations.CompilerControl;
 import com.xceptance.common.lang.XltCharBuffer;
 
 /**
- * The {@link CsvUtilsDecodeV3} class provides helper methods to encode and decode values to/from the CSV format.
+ * The {@link CsvUtilsDecode_V3_Simple_NoQuoteSupport} class provides helper methods to encode and decode values to/from the CSV format.
  * This is the high performance and most efficient method. It will avoid copying data at all cost and move
  * through the cache very efficently.
+ *
+ * It does not know anything about quotes!
  *
  * @author René Schwietzke
  *
  * @since 7.1.0
  */
-public final class CsvUtilsDecodeV3
+public final class CsvUtilsDecode_V3_Simple_NoQuoteSupport
 {
     /**
      * Character constant representing a comma.
@@ -46,7 +48,7 @@ public final class CsvUtilsDecodeV3
     /**
      * Default constructor. Declared private to prevent external instantiation.
      */
-    private CsvUtilsDecodeV3()
+    private CsvUtilsDecode_V3_Simple_NoQuoteSupport()
     {
     }
 
@@ -62,12 +64,6 @@ public final class CsvUtilsDecodeV3
     {
         return parse(new SimpleArrayList<>(32), XltCharBuffer.valueOf(s), COMMA);
     }
-
-    // our bit flags for the parser
-    @SuppressWarnings("unused")
-    private static final int START = 1;
-    private static final int IN_DATA = 2;
-    private static final int IN_DATA_QUOTES = 4;
 
     /**
      * Encodes the given fields to a CSV-encoded data record using the given field separator.

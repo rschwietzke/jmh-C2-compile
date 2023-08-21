@@ -21,13 +21,13 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.xceptance.common.lang.XltCharBuffer;
-import com.xceptance.common.util.CsvUtilsDecodeV2;
+import com.xceptance.common.util.CsvUtilsDecode_V2_Switch;
 
 public abstract class AbstractCSVUtilsDecodeTest
 {
     void test_noQuoteConversion(String s, String... expected)
     {
-        final List<XltCharBuffer> result = CsvUtilsDecodeV2.parse(s);
+        final List<XltCharBuffer> result = CsvUtilsDecode_V2_Switch.parse(s);
 
         Assert.assertEquals(expected.length, result.size());
         for (int i = 0; i < expected.length; i++)

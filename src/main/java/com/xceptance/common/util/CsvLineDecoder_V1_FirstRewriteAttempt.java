@@ -20,7 +20,7 @@ import java.text.ParseException;
 import com.xceptance.common.lang.XltCharBuffer;
 
 /**
- * The {@link CsvLineDecoder} class provides helper methods to encode and decode values to/from the CSV format.
+ * The {@link CsvLineDecoder_V1_FirstRewriteAttempt} class provides helper methods to encode and decode values to/from the CSV format.
  * This is the high performance and most efficient method. It will avoid copying data at all cost and move
  * through the cache very efficently.
  *
@@ -28,7 +28,7 @@ import com.xceptance.common.lang.XltCharBuffer;
  *
  * @since 7.0.0
  */
-public final class CsvLineDecoder
+public final class CsvLineDecoder_V1_FirstRewriteAttempt
 {
     /**
      * Character constant representing a comma.
@@ -43,7 +43,7 @@ public final class CsvLineDecoder
     /**
      * Default constructor. Declared private to prevent external instantiation.
      */
-    private CsvLineDecoder()
+    private CsvLineDecoder_V1_FirstRewriteAttempt()
     {
     }
 

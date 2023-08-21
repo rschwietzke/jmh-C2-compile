@@ -22,7 +22,7 @@ import org.openjdk.jmh.annotations.CompilerControl;
 import com.xceptance.common.lang.XltCharBuffer;
 
 /**
- * The {@link CsvUtilsDecode} class provides helper methods to encode and decode
+ * The {@link CsvUtilsDecode_V1_Original} class provides helper methods to encode and decode
  * values to/from the CSV format.
  * This is the high performance and most efficient method. It will avoid copying
  * data at all cost and move
@@ -33,7 +33,7 @@ import com.xceptance.common.lang.XltCharBuffer;
  *
  * @since 7.0.0
  */
-public final class CsvUtilsDecodeV2
+public final class CsvUtilsDecode_V2_Switch
 {
     /**
      * Character constant representing a comma.
@@ -48,7 +48,7 @@ public final class CsvUtilsDecodeV2
     /**
      * Default constructor. Declared private to prevent external instantiation.
      */
-    private CsvUtilsDecodeV2()
+    private CsvUtilsDecode_V2_Switch()
     {
     }
 

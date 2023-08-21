@@ -18,7 +18,6 @@ package com.xceptance.utils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.List;
 
@@ -26,16 +25,13 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.xceptance.common.lang.XltCharBuffer;
-import com.xceptance.common.util.CsvLineDecoder;
-import com.xceptance.common.util.CsvLineDecoder2;
-import com.xceptance.common.util.CsvLineDecoder3;
-import com.xceptance.common.util.CsvParserException;
+import com.xceptance.common.util.CsvLineDecoder_V1_FirstRewriteAttempt;
 
-public class CsvLineDecoderTest3
+public class CsvLineDecoder_V1_Test
 {
     void test(String s, String... expected)
     {
-        final List<XltCharBuffer> result = CsvLineDecoder3.parse(s.replace("'", "\""));
+        final List<XltCharBuffer> result = CsvLineDecoder_V1_FirstRewriteAttempt.parse(s.replace("'", "\""));
 
         Assert.assertEquals(expected.length, result.size());
         for (int i = 0; i < expected.length; i++)
@@ -44,25 +40,10 @@ public class CsvLineDecoderTest3
         }
     }
 
-    void testException(String s, String expected)
-    {
-        try
-        {
-            final List<XltCharBuffer> result = CsvLineDecoder3.parse(s.replace("'", "\""));
-        }
-        catch(CsvParserException e)
-        {
-            var msg = e.getMessage();
-            assertEquals(expected, msg);
-            return;
-        }
-        fail("No exception was raised");
-    }
-
     @Test
     public void empty()
     {
-        var r = CsvLineDecoder.parse("");
+        var r = CsvLineDecoder_V1_FirstRewriteAttempt.parse("");
         assertEquals(0, r.size());
     }
 
@@ -161,12 +142,11 @@ public class CsvLineDecoderTest3
     @Test
     public void quotesAndText()
     {
-        test("'a','b'", "a", "b");
-
         test("'a'", "a");
         test("'aa'", "aa");
         test("'aaa'", "aaa");
         test("'aaaa'", "aaaa");
+        test("'a','b'", "a", "b");
         test("'aa','bb'", "aa", "bb");
         test("'aaa','bbb'", "aaa", "bbb");
     }
@@ -187,19 +167,18 @@ public class CsvLineDecoderTest3
     @Test
     public void quotedQuotesSimple()
     {
-        test("'''',''''", "'", "'");
         test("''''", "'");
+        test("'''',''''", "'", "'");
         test(",''''", "", "'");
         test("'''',", "'", "");
     }
 
-    @Test
-    public void quotedQuotesComplex()
-    {
-        test("''''''", "''");
-        test("'''a'''", "'a'");
-        test("''''''''''''''''''", "''''''''");
-    }
+//    @Test
+//    public void quotedQuotesComplex()
+//    {
+//        test("''''''", "''");
+//        test("'''a'''", "'a'");
+//    }
 
     @Test
     public void quotedQuotesAndText()
@@ -213,50 +192,10 @@ public class CsvLineDecoderTest3
     }
 
     @Test
-    public void delimiterInQuotes()
-    {
-        test("','", ",");
-        test("',',','", ",", ",");
-        test("''','", "',");
-        test("','''", ",'");
-
-        test("''' '''',''',''", "' '','", "");
-    }
-
-    @Test
     public void regularMixedLines()
     {
         test("a,b,c,'d,e',f,,", "a", "b", "c", "d,e", "f", "", "");
         test("abc,'123','456',,,,',,,','1012'", "abc", "123", "456", "", "", "", ",,,", "1012");
-    }
-
-    /*
-     * All error cases
-     */
-
-    @Test
-    public void noEndQuote()
-    {
-        testException("'", "Quoted col has not been properly closed");
-        testException("'abcd,", "Quoted col has not been properly closed");
-        testException("'','", "Quoted col has not been properly closed");
-        testException("abc,'cdef", "Quoted col has not been properly closed");
-    }
-
-    @Test
-    public void noDelimiterAfterClosingQuote()
-    {
-        testException("'' ,", "Delimiter or end of line expected at pos: 2");
-        testException("'' ", "Delimiter or end of line expected at pos: 2");
-    }
-
-    @Test
-    public void brokenQuotedQuotes()
-    {
-        testException("'''", "Quoted field with quotes was not ended properly at: 3");
-        testException("'''''", "Quoted field with quotes was not ended properly at: 5");
-        testException("'','''", "Quoted field with quotes was not ended properly at: 6");
-        testException("'','''',''',''", "Quoted field with quotes was not ended properly at: 14");
     }
 
     /*

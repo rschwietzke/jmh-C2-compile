@@ -17,11 +17,11 @@ import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.infra.BenchmarkParams;
 
 import com.xceptance.common.lang.XltCharBuffer;
-import com.xceptance.common.util.CsvLineDecoder;
-import com.xceptance.common.util.CsvLineDecoder2;
-import com.xceptance.common.util.CsvLineDecoder3;
-import com.xceptance.common.util.CsvUtilsDecode;
-import com.xceptance.common.util.CsvUtilsDecodeV2;
+import com.xceptance.common.util.CsvLineDecoder_V1_FirstRewriteAttempt;
+import com.xceptance.common.util.CsvLineDecoder_V2_Stateless;
+import com.xceptance.common.util.CsvLineDecoder_V3_FixedDelimiter;
+import com.xceptance.common.util.CsvUtilsDecode_V1_Original;
+import com.xceptance.common.util.CsvUtilsDecode_V2_Switch;
 import com.xceptance.common.util.SimpleArrayList;
 
 /**
@@ -68,7 +68,7 @@ public class B05b_ShortWarmupAndQuotedTest
     public SimpleArrayList<XltCharBuffer> parse()
     {
         result.clear();
-        var x = CsvUtilsDecode.parse(result, src, ',');
+        var x = CsvUtilsDecode_V1_Original.parse(result, src, ',');
 
         return x;
     }
@@ -77,7 +77,7 @@ public class B05b_ShortWarmupAndQuotedTest
     public SimpleArrayList<XltCharBuffer> parseV2()
     {
         result.clear();
-        var x = CsvUtilsDecodeV2.parse(result, src, ',');
+        var x = CsvUtilsDecode_V2_Switch.parse(result, src, ',');
 
         return x;
     }
@@ -86,7 +86,7 @@ public class B05b_ShortWarmupAndQuotedTest
     public SimpleArrayList<XltCharBuffer> parseV4()
     {
         result.clear();
-        var x = CsvLineDecoder.parse(result, src, ',');
+        var x = CsvLineDecoder_V1_FirstRewriteAttempt.parse(result, src, ',');
 
         return x;
     }
@@ -95,7 +95,7 @@ public class B05b_ShortWarmupAndQuotedTest
     public SimpleArrayList<XltCharBuffer> parseV5()
     {
         result.clear();
-        var x = CsvLineDecoder2.parse(result, src, ',');
+        var x = CsvLineDecoder_V2_Stateless.parse(result, src, ',');
 
         return x;
     }
@@ -104,7 +104,7 @@ public class B05b_ShortWarmupAndQuotedTest
     public SimpleArrayList<XltCharBuffer> parseV6()
     {
         result.clear();
-        var x = CsvLineDecoder3.parse(result, src);
+        var x = CsvLineDecoder_V3_FixedDelimiter.parse(result, src);
 
         return x;
     }

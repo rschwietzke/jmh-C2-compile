@@ -22,12 +22,12 @@ import org.openjdk.jmh.annotations.Threads;
 import org.openjdk.jmh.annotations.Warmup;
 
 import com.xceptance.common.lang.XltCharBuffer;
-import com.xceptance.common.util.CsvLineDecoder;
-import com.xceptance.common.util.CsvLineDecoder2;
-import com.xceptance.common.util.CsvLineDecoder3;
-import com.xceptance.common.util.CsvUtilsDecode;
-import com.xceptance.common.util.CsvUtilsDecodeV2;
-import com.xceptance.common.util.CsvUtilsDecodeV3;
+import com.xceptance.common.util.CsvLineDecoder_V1_FirstRewriteAttempt;
+import com.xceptance.common.util.CsvLineDecoder_V2_Stateless;
+import com.xceptance.common.util.CsvLineDecoder_V3_FixedDelimiter;
+import com.xceptance.common.util.CsvUtilsDecode_V1_Original;
+import com.xceptance.common.util.CsvUtilsDecode_V2_Switch;
+import com.xceptance.common.util.CsvUtilsDecode_V3_Simple_NoQuoteSupport;
 import com.xceptance.common.util.SimpleArrayList;
 
 /**
@@ -77,7 +77,7 @@ public class B12_FullAsStream
         for (int i = 0; i < data.size(); i++)
         {
             result.clear();
-            var r = CsvUtilsDecode.parse(result, data.get(i), ',');
+            var r = CsvUtilsDecode_V1_Original.parse(result, data.get(i), ',');
             count += r.size();
         }
 
@@ -93,7 +93,7 @@ public class B12_FullAsStream
         for (int i = 0; i < data.size(); i++)
         {
             result.clear();
-            var r = CsvUtilsDecodeV2.parse(result, data.get(i), ',');
+            var r = CsvUtilsDecode_V2_Switch.parse(result, data.get(i), ',');
             count += r.size();
         }
 
@@ -109,7 +109,7 @@ public class B12_FullAsStream
         for (int i = 0; i < data.size(); i++)
         {
             result.clear();
-            var r = CsvUtilsDecodeV3.parse(result, data.get(i), ',');
+            var r = CsvUtilsDecode_V3_Simple_NoQuoteSupport.parse(result, data.get(i), ',');
             count += r.size();
         }
 
@@ -125,7 +125,7 @@ public class B12_FullAsStream
         for (int i = 0; i < data.size(); i++)
         {
             result.clear();
-            var r = CsvLineDecoder.parse(result, data.get(i), ',');
+            var r = CsvLineDecoder_V1_FirstRewriteAttempt.parse(result, data.get(i), ',');
             count += r.size();
         }
 
@@ -141,7 +141,7 @@ public class B12_FullAsStream
         for (int i = 0; i < data.size(); i++)
         {
             result.clear();
-            var r = CsvLineDecoder2.parse(result, data.get(i), ',');
+            var r = CsvLineDecoder_V2_Stateless.parse(result, data.get(i), ',');
             count += r.size();
         }
 
@@ -156,7 +156,7 @@ public class B12_FullAsStream
         for (int i = 0; i < data.size(); i++)
         {
             result.clear();
-            var r = CsvLineDecoder3.parse(result, data.get(i));
+            var r = CsvLineDecoder_V3_FixedDelimiter.parse(result, data.get(i));
             count += r.size();
         }
 
